@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Smart Borewell Water Level Monitoring System - Real-time ESP32 IoT Dashboard with Ultrasonic Sensor HC-SR04 & Wokwi Simulator Integration.">
+  <title>Smart Borewell Water Level Monitoring System | ESP32 IoT</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Consolas&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
+</head>
+<body>
+
+  <!-- ========================================================================
+       SIDEBAR NAVIGATION
+       ======================================================================== -->
+  <aside class="app-sidebar" id="appSidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+        </svg>
+      </div>
+      <div class="brand-info">
+        <h2>SMART BOREWELL</h2>
+        <span>IoT Monitoring</span>
+      </div>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item active" data-tab="dashboard">
+        <a href="#dashboard" id="nav-dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </a>
+      </li>
+      <li class="nav-item" data-tab="tank-view">
+        <a href="#tank-view" id="nav-water-level">
+          <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+          Water Level
+        </a>
+      </li>
+      <li class="nav-item" data-tab="history">
+        <a href="#history" id="nav-history">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          History
+        </a>
+      </li>
+      <li class="nav-item" data-tab="alerts">
+        <a href="#alerts" id="nav-alerts">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          Alerts
+          <span class="nav-badge" id="navAlertBadge" style="display: none;">!</span>
+        </a>
+      </li>
+      <li class="nav-item" data-tab="status">
+        <a href="#status" id="nav-system-status">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+          System Status
+        </a>
+      </li>
+      <li class="nav-item" data-tab="wokwi">
+        <a href="#wokwi" id="nav-wokwi">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          Wokwi Simulator
+        </a>
+      </li>
+      <li class="nav-item" data-tab="config">
+        <a href="#config" id="nav-config">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Configuration
+        </a>
+      </li>
+      <li class="nav-item" data-tab="about">
+        <a href="#about" id="nav-about">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          About Project
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-esp-tag">
+        <div class="esp-status-dot" id="sidebarDot"></div>
+        <div>
+          <div class="esp-text" id="sidebarStatusText">ESP32 Offline</div>
+          <small style="color: var(--text-muted); font-size: 0.7rem;" id="sidebarModeText">Demo Ready</small>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================
+       MAIN APP WRAPPER
+       ======================================================================== -->
+  <main class="app-main">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div class="header-title-box">
+          <h1>SMART BOREWELL</h1>
+          <p>Water Level Monitoring System</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Live Connection Status Pill -->
+        <div class="connection-pill offline" id="connectionPill">
+          <span class="pulsing-dot" id="pulsingDot"></span>
+          <span id="connectionLabel">● ESP32 OFFLINE</span>
+        </div>
+
+        <!-- Start Demo Button -->
+        <button class="btn-header btn-demo" id="btnToggleDemo">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span id="demoBtnLabel">Start Demo</span>
+        </button>
+
+        <!-- Sound Buzzer Mute Toggle -->
+        <button class="btn-icon" id="btnToggleSound" title="Toggle Audio Alarm Buzzer" aria-label="Toggle Sound">
+          <svg id="soundIconOn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          <svg id="soundIconOff" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Alert Notification Banners Container -->
+    <div class="alert-banner-container" id="alertBannerContainer">
+      <!-- Injected dynamically via JS based on status -->
+    </div>
+
+    <!-- ========================================================================
+         PAGE SECTIONS (Tab-Switchable)
+         ======================================================================== -->
+    <div class="content-wrapper">
+
+      <!-- ====================================================================
+           TAB 1: MAIN DASHBOARD
+           ==================================================================== -->
+      <section class="tab-section active" id="sec-dashboard">
+        <!-- Section Header with Quick Test Buttons -->
+        <div class="section-title-row">
+          <div>
+            <h2>Real-Time Overview</h2>
+            <p>Live telemetry from HC-SR04 ultrasonic sensor & ESP32 controller</p>
+          </div>
+          
+          <div class="demo-control-ribbon">
+            <span class="ribbon-label">Quick Test:</span>
+            <button class="btn-test btn-test-normal" id="btnQuickNormal">NORMAL TEST</button>
+            <button class="btn-test btn-test-low" id="btnQuickLow">LOW TEST</button>
+            <button class="btn-test btn-test-critical" id="btnQuickCritical">CRITICAL TEST</button>
+          </div>
+        </div>
+
+        <!-- 6 Main KPI Cards -->
+        <div class="cards-grid">
+          <!-- Card 1: WATER LEVEL -->
+          <div class="card" id="cardWaterLevel">
+            <div class="card-top">
+              <span class="card-label">WATER LEVEL</span>
+              <div class="card-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+              </div>
+            </div>
+            <div class="card-value">
+              <span id="valWaterLevel">100.0</span>
+              <span class="card-unit">cm</span>
+            </div>
+            <div class="card-subtext">
+              <span>Depth capacity: 200 cm</span>
+            </div>
+          </div>
+
+          <!-- Card 2: WATER PERCENTAGE -->
+          <div class="card" id="cardPercentage">
+            <div class="card-top">
+              <span class="card-label">WATER PERCENTAGE</span>
+              <div class="card-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><circle cx="9.5" cy="9.5" r=".5" fill="currentColor"></circle><circle cx="14.5" cy="14.5" r=".5" fill="currentColor"></circle></svg>
+              </div>
+            </div>
+            <div class="card-value">
+              <span id="valPercentage">50.0</span>
+              <span class="card-unit">%</span>
+            </div>
+            <div class="card-subtext">
+              <div class="progress-bar-bg" style="margin-top: 0; width: 100%;">
+                <div class="progress-bar-fill normal" id="kpiProgressFill" style="width: 50%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: WATER STATUS -->
+          <div class="card" id="cardStatus">
+            <div class="card-top">
+              <span class="card-label">WATER STATUS</span>
+              <div class="card-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+            </div>
+            <div class="card-value" style="margin-top: 4px;">
+              <span class="status-badge normal" id="valStatusBadge">NORMAL</span>
+            </div>
+            <div class="card-subtext" id="statusConditionText">
+              <span>Level &ge; 30 cm &bull; Safe Condition</span>
+            </div>
+          </div>
+
+          <!-- Card 4: SENSOR DISTANCE -->
+          <div class="card" id="cardDistance">
+            <div class="card-top">
+              <span class="card-label">SENSOR DISTANCE</span>
+              <div class="card-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M7 8l-5 4 5 4M17 8l5 4-5 4"></path></svg>
+              </div>
+            </div>
+            <div class="card-value">
+              <span id="valDistance">100.0</span>
+              <span class="card-unit">cm</span>
+            </div>
+            <div class="card-subtext">
+              <span>HC-SR04 Air Gap to Water</span>
+            </div>
+          </div>
+
+          <!-- Card 5: PUMP STATUS -->
+          <div class="card" id="cardPump">
+            <div class="card-top">
+              <span class="card-label">PUMP STATUS</span>
+              <div class="card-icon-wrap">
+                <svg class="" id="kpiPumpIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              </div>
+            </div>
+            <div class="card-value" style="margin-top: 4px;">
+              <span class="pump-badge off" id="valPumpBadge">OFF</span>
+            </div>
+            <div class="card-subtext" id="pumpSubtext">
+              <span>Relay GPIO 26: Inactive</span>
+            </div>
+          </div>
+
+          <!-- Card 6: LAST UPDATED -->
+          <div class="card" id="cardLastUpdated">
+            <div class="card-top">
+              <span class="card-label">LAST UPDATED</span>
+              <div class="card-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+            </div>
+            <div class="card-value" style="font-size: 1.5rem;">
+              <span id="valLastUpdated">Waiting...</span>
+            </div>
+            <div class="card-subtext">
+              <span id="valDataSourceTag">Source: System Ready</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Borewell Visualization & Deep Telemetry Grid -->
+        <div class="tank-view-container">
+          <!-- Tank Visualization Card -->
+          <div class="tank-card">
+            <div class="tank-header">
+              <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                Borewell Tank Visualization
+              </h3>
+              <span class="tank-depth-tag">Depth: 200 cm</span>
+            </div>
+
+            <div class="tank-visual-wrap">
+              <!-- Measurement Ruler with Tick Marks -->
+              <div class="depth-ruler">
+                <div class="ruler-mark">200 cm (Full)</div>
+                <div class="ruler-mark">150 cm</div>
+                <div class="ruler-mark">100 cm (50%)</div>
+                <div class="ruler-mark">50 cm</div>
+                <div class="ruler-mark highlight-low">30 cm (Low)</div>
+                <div class="ruler-mark highlight-crit">15 cm (Critical)</div>
+                <div class="ruler-mark">0 cm (Empty)</div>
+              </div>
+
+              <!-- Cylindrical Tank Vessel with Water -->
+              <div class="tank-casing" id="tankVessel">
+                <!-- Top Sensor Mount with Ultrasonic Waves -->
+                <div class="sensor-mount-top">
+                  <div class="sensor-bracket">
+                    <div class="sensor-transducer" title="TRIG"></div>
+                    <div class="sensor-transducer" title="ECHO"></div>
+                  </div>
+                  <div class="sensor-wave" id="sensorWaveEffect"></div>
+                  <div class="sensor-beam" id="sensorBeamLine"></div>
+                </div>
+
+                <!-- Animated Water Body -->
+                <div class="tank-liquid-body" id="tankLiquidBody" style="height: 50%;">
+                  <!-- Moving Surface Waves -->
+                  <div class="water-wave-surface"></div>
+                  <div class="water-wave-surface secondary"></div>
+
+                  <!-- Rising Bubbles -->
+                  <div class="bubbles-wrap">
+                    <div class="bubble" style="left: 20%; width: 6px; height: 6px; animation-delay: 0s;"></div>
+                    <div class="bubble" style="left: 45%; width: 9px; height: 9px; animation-delay: 1.2s;"></div>
+                    <div class="bubble" style="left: 70%; width: 5px; height: 5px; animation-delay: 2.1s;"></div>
+                    <div class="bubble" style="left: 30%; width: 8px; height: 8px; animation-delay: 2.8s;"></div>
+                    <div class="bubble" style="left: 80%; width: 4px; height: 4px; animation-delay: 0.7s;"></div>
+                  </div>
+                </div>
+
+                <!-- Submersible Pump at the Bottom -->
+                <div class="pump-at-bottom" id="submersiblePumpGraphic">
+                  <div class="pump-pipe"></div>
+                  <div class="pump-body">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  </div>
+                  <div class="pump-active-glow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Readout & Interactive Simulation Card -->
+          <div class="tank-readout-panel">
+            <div class="readout-card">
+              <h4>Water Volume & Fill Level</h4>
+              <div class="readout-stats-row">
+                <span class="readout-big-num" id="readoutPercentage">50.0%</span>
+                <span class="readout-sub"><strong id="readoutWaterLevel">100.0</strong> cm / 200.0 cm</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill normal" id="readoutProgressBar" style="width: 50%;"></div>
+              </div>
+            </div>
+
+            <div class="readout-card">
+              <h4>Sensor & Hydraulic Telemetry</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+                <div>
+                  <small style="color: var(--text-muted); display: block;">Air Gap (Echo Time):</small>
+                  <strong style="font-size: 1.1rem; color: #fff;" id="readoutAirGap">100.0 cm</strong>
+                </div>
+                <div>
+                  <small style="color: var(--text-muted); display: block;">Pump Relay (GPIO 26):</small>
+                  <strong style="font-size: 1.1rem; color: #94a3b8;" id="readoutPumpState">OFF</strong>
+                </div>
+                <div>
+                  <small style="color: var(--text-muted); display: block;">Buzzer Alarm (GPIO 23):</small>
+                  <strong style="font-size: 1.1rem; color: #94a3b8;" id="readoutBuzzerState">OFF</strong>
+                </div>
+                <div>
+                  <small style="color: var(--text-muted); display: block;">OLED SSD1306:</small>
+                  <strong style="font-size: 1.1rem; color: #10b981;">Active (0x3C)</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Sensor Distance Slider -->
+            <div class="interactive-control-card">
+              <h4>Manual Distance Slider (Simulation)</h4>
+              <div class="slider-container">
+                <div class="slider-header">
+                  <span>Sensor Distance (HC-SR04):</span>
+                  <strong><span id="sliderValueDisplay">100</span> cm</strong>
+                </div>
+                <input type="range" min="0" max="200" value="100" class="slider-input" id="distanceRangeSlider">
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+                  <span>0 cm (Full / 100%)</span>
+                  <span>100 cm (50%)</span>
+                  <span>200 cm (Empty / 0%)</span>
+                </div>
+              </div>
+
+              <div class="test-actions-grid">
+                <button class="btn-action-test btn-test-normal" id="btnTestNormal">
+                  NORMAL
+                  <span>Level: 100cm (50%)</span>
+                </button>
+                <button class="btn-action-test btn-test-low" id="btnTestLow">
+                  LOW
+                  <span>Level: 20cm (10%)</span>
+                </button>
+                <button class="btn-action-test btn-test-critical" id="btnTestCritical">
+                  CRITICAL
+                  <span>Level: 5cm (2.5%)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 2: WATER LEVEL DEEP DIVE (Dedicated Tank View)
+           ==================================================================== -->
+      <section class="tab-section" id="sec-tank-view">
+        <div class="section-title-row">
+          <div>
+            <h2>Water Level Analytics</h2>
+            <p>Detailed borehole reservoir capacity and physical thresholds</p>
+          </div>
+        </div>
+
+        <div class="about-card">
+          <h3>Borewell Depth Calibration & Equations</h3>
+          <p>
+            The borewell has an engineered sensor casing with total depth \(H_{total} = 200\text{ cm}\).
+            The ultrasonic sensor is stationed securely at the wellhead, projecting ultrasonic sound pulses downwards at the water surface.
+          </p>
+
+          <div class="logic-spec-grid">
+            <div class="logic-spec-item" style="border-left: 4px solid var(--status-normal);">
+              <h5>NORMAL STATE (&ge; 30 cm)</h5>
+              <p>Water level is adequate for regular irrigation/household use. Green LED is energized, Submersible Pump is OFF, and Buzzer is silent.</p>
+            </div>
+            <div class="logic-spec-item" style="border-left: 4px solid var(--status-low);">
+              <h5>LOW STATE (15 cm to 29.9 cm)</h5>
+              <p>Water level is low. Relay is triggered to turn the Pump ON to recharge or transfer water. Buzzer remains OFF to prevent disturbance.</p>
+            </div>
+            <div class="logic-spec-item" style="border-left: 4px solid var(--status-critical);">
+              <h5>CRITICAL STATE (&lt; 15 cm)</h5>
+              <p>Water level is dangerously low. Pump is shut OFF immediately to prevent dry-running motor failure. Red LED blinks and Buzzer is activated.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 3: WATER LEVEL HISTORY
+           ==================================================================== -->
+      <section class="tab-section" id="sec-history">
+        <div class="section-title-row">
+          <div>
+            <h2>Water Level History</h2>
+            <p>Historical trends logged from ESP32 telemetry & localStorage</p>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-header" id="btnExportCsv">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export CSV
+            </button>
+            <button class="btn-header" style="color: #f87171;" id="btnClearHistory">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              Clear History
+            </button>
+          </div>
+        </div>
+
+        <!-- Historical Canvas Line Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 style="font-size: 1.1rem; color: #fff;">Water Level & Percentage Trend</h3>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #38bdf8;"></div>
+                <span>Water Level (cm)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #10b981;"></div>
+                <span>Percentage (%)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="canvas-chart-wrap">
+            <canvas id="historyCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Historical Data Table -->
+        <div class="table-card">
+          <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 14px;">Recent Telemetry Readings</h4>
+          <table class="data-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Distance (cm)</th>
+                <th>Water Level (cm)</th>
+                <th>Percentage (%)</th>
+                <th>Status</th>
+                <th>Pump</th>
+                <th>Buzzer</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 4: ALERTS SYSTEM
+           ==================================================================== -->
+      <section class="tab-section" id="sec-alerts">
+        <div class="section-title-row">
+          <div>
+            <h2>Alerts & Safety Management</h2>
+            <p>Audible and visual threshold warnings for borehole water levels</p>
+          </div>
+        </div>
+
+        <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+          <div class="card" style="border-left: 4px solid var(--status-low);">
+            <div class="card-top">
+              <span class="card-label">LOW WATER ALERT THRESHOLD</span>
+              <span class="status-badge low" style="font-size: 0.8rem; padding: 3px 10px;">15 cm - 29.9 cm</span>
+            </div>
+            <div class="card-value" style="font-size: 1.25rem; color: #fbbf24;">
+              Warning: Borewell water level is low.
+            </div>
+            <div class="card-subtext" style="margin-top: 10px;">
+              System action: Pump is switched ON to refill. Buzzer stays OFF.
+            </div>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--status-critical);">
+            <div class="card-top">
+              <span class="card-label">CRITICAL DRY-RUN ALERT</span>
+              <span class="status-badge critical" style="font-size: 0.8rem; padding: 3px 10px;">&lt; 15 cm</span>
+            </div>
+            <div class="card-value" style="font-size: 1.25rem; color: #f87171;">
+              Critical Alert: Borewell water level is critically low.
+            </div>
+            <div class="card-subtext" style="margin-top: 10px;">
+              System action: Pump is instantly turned OFF to prevent motor burnout. Buzzer sounds active audio alert.
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card" style="margin-top: 20px;">
+          <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 14px;">Recent System Alert Log</h4>
+          <div id="alertsLogList" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 5: SYSTEM STATUS & HARDWARE
+           ==================================================================== -->
+      <section class="tab-section" id="sec-status">
+        <div class="section-title-row">
+          <div>
+            <h2>System Status & Hardware Health</h2>
+            <p>Live status of ESP32 micro-controller, sensors, actuators and APIs</p>
+          </div>
+        </div>
+
+        <div class="hardware-grid">
+          <!-- ESP32 -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="hw-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line></svg>
+              </div>
+              <div>
+                <div class="hw-name">ESP32 DevKit V1</div>
+                <div class="hw-pin">Dual-Core Xtensa &bull; Wi-Fi 802.11 b/g/n</div>
+              </div>
+            </div>
+            <span class="status-tag inactive" id="hwEsp32Status">Offline</span>
+          </div>
+
+          <!-- Ultrasonic Sensor -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="hw-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M7 8l-5 4 5 4M17 8l5 4-5 4"></path></svg>
+              </div>
+              <div>
+                <div class="hw-name">Ultrasonic Sensor</div>
+                <div class="hw-pin">HC-SR04 (TRIG: GPIO 5, ECHO: GPIO 18)</div>
+              </div>
+            </div>
+            <span class="status-tag active" id="hwSensorStatus">Active</span>
+          </div>
+
+          <!-- OLED Display -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="hw-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              </div>
+              <div>
+                <div class="hw-name">OLED Display</div>
+                <div class="hw-pin">SSD1306 128x64 I2C (SDA: 21, SCL: 22)</div>
+              </div>
+            </div>
+            <span class="status-tag active" id="hwOledStatus">Active</span>
+          </div>
+
+          <!-- Green LED -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="led-indicator-bulb green-on" id="hwGreenLedBulb"></div>
+              <div>
+                <div class="hw-name">Green LED</div>
+                <div class="hw-pin">Normal Status (GPIO 19 via 220&Omega;)</div>
+              </div>
+            </div>
+            <span class="status-tag active" id="hwGreenLedStatus">ON</span>
+          </div>
+
+          <!-- Red LED -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="led-indicator-bulb" id="hwRedLedBulb"></div>
+              <div>
+                <div class="hw-name">Red LED</div>
+                <div class="hw-pin">Alert Status (GPIO 4 via 220&Omega;)</div>
+              </div>
+            </div>
+            <span class="status-tag inactive" id="hwRedLedStatus">OFF</span>
+          </div>
+
+          <!-- Buzzer -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="led-indicator-bulb" id="hwBuzzerBulb"></div>
+              <div>
+                <div class="hw-name">Piezo Buzzer</div>
+                <div class="hw-pin">Audible Alarm (GPIO 23)</div>
+              </div>
+            </div>
+            <span class="status-tag inactive" id="hwBuzzerStatus">OFF</span>
+          </div>
+
+          <!-- Relay / Pump -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="hw-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+              </div>
+              <div>
+                <div class="hw-name">Relay / Pump</div>
+                <div class="hw-pin">Submersible Pump Switch (GPIO 26)</div>
+              </div>
+            </div>
+            <span class="status-tag inactive" id="hwRelayStatus">OFF</span>
+          </div>
+
+          <!-- REST API -->
+          <div class="hardware-card">
+            <div class="hw-info">
+              <div class="hw-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              </div>
+              <div>
+                <div class="hw-name">REST API Server</div>
+                <div class="hw-pin">Express Backend (Port 3000)</div>
+              </div>
+            </div>
+            <span class="status-tag active" id="hwApiStatus">Connected</span>
+          </div>
+        </div>
+
+        <!-- System Architecture Diagram -->
+        <div class="architecture-card">
+          <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 6px;">System Data Flow & Architecture</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">End-to-end data pipeline from physical sensor transducers to real-time browser dashboard</p>
+
+          <div class="architecture-diagram">
+            <div class="arch-node">
+              <div class="arch-node-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div class="arch-node-title">HC-SR04</div>
+              <div class="arch-node-sub">Ultrasonic Sensor</div>
+            </div>
+
+            <div class="arch-arrow">&rarr;</div>
+
+            <div class="arch-node">
+              <div class="arch-node-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect></svg>
+              </div>
+              <div class="arch-node-title">ESP32</div>
+              <div class="arch-node-sub">Microcontroller</div>
+            </div>
+
+            <div class="arch-arrow">&rarr;</div>
+
+            <div class="arch-node">
+              <div class="arch-node-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+              </div>
+              <div class="arch-node-title">Wi-Fi</div>
+              <div class="arch-node-sub">TCP/IP Network</div>
+            </div>
+
+            <div class="arch-arrow">&rarr;</div>
+
+            <div class="arch-node">
+              <div class="arch-node-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+              </div>
+              <div class="arch-node-title">REST API</div>
+              <div class="arch-node-sub">POST /api/water-level</div>
+            </div>
+
+            <div class="arch-arrow">&rarr;</div>
+
+            <div class="arch-node">
+              <div class="arch-node-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.1);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line></svg>
+              </div>
+              <div class="arch-node-title">Website Dashboard</div>
+              <div class="arch-node-sub">Real-Time Visualization</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 6: WOKWI SIMULATOR CONNECT
+           ==================================================================== -->
+      <section class="tab-section" id="sec-wokwi">
+        <div class="section-title-row">
+          <div>
+            <h2>Wokwi Simulation Integration</h2>
+            <p>Connect your online ESP32 circuit directly to this Web Dashboard</p>
+          </div>
+        </div>
+
+        <div class="wokwi-banner-card">
+          <div class="wokwi-banner-content">
+            <h3>🔗 Connected Wokwi Project</h3>
+            <p>Your simulation project is pre-configured with ESP32 DevKit, HC-SR04, SSD1306, LEDs, Buzzer and Relay:</p>
+            <p style="margin-top: 6px;"><code style="color: var(--accent-cyan); font-size: 0.95rem;">https://wokwi.com/projects/477225704074108929</code></p>
+          </div>
+
+          <div>
+            <a href="https://wokwi.com/projects/477225704074108929" target="_blank" rel="noopener noreferrer" class="btn-header" style="background: linear-gradient(135deg, #0284c7, #00f2fe); border: none; color: #000; font-weight: 700; padding: 10px 20px;">
+              Open in Wokwi &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- 3 Simple Steps -->
+        <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+          <div class="card">
+            <div class="card-top">
+              <span class="card-label">STEP 1: START LOCAL TUNNEL</span>
+              <span class="status-badge normal" style="font-size: 0.75rem; padding: 2px 8px;">Quick</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
+              To let Wokwi's cloud simulator send HTTP requests to your local computer, run this command in terminal:
+            </p>
+            <div style="background: #000; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.82rem; color: #38bdf8;">
+              npx localtunnel --port 3000
+            </div>
+            <small style="color: var(--text-muted); display: block; margin-top: 6px;">Copy the generated public URL (e.g. https://borewell-xyz.loca.lt)</small>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span class="card-label">STEP 2: PASTE CODE INTO WOKWI</span>
+              <span class="status-badge low" style="font-size: 0.75rem; padding: 2px 8px;">Arduino</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
+              Copy the upgraded C++ sketch below into Wokwi's <code>sketch.ino</code>. Replace <code>API_URL</code> with your tunnel URL.
+            </p>
+            <button class="btn-header" id="btnCopyWokwiCode" style="width: 100%; justify-content: center;">
+              📋 Copy Complete ESP32 Code
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span class="card-label">STEP 3: RUN & MOVE SENSOR</span>
+              <span class="status-badge normal" style="font-size: 0.75rem; padding: 2px 8px;">Live</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
+              Press the green <strong>Start Simulation</strong> in Wokwi. Click the HC-SR04 sensor in Wokwi and move the slider.
+            </p>
+            <div style="font-size: 0.82rem; color: #10b981; font-weight: 600;">
+              ✅ Watch your website update in real time!
+            </div>
+          </div>
+        </div>
+
+        <!-- ESP32 Arduino Sketch Code Viewer -->
+        <div class="code-box-container">
+          <div class="code-box-header">
+            <span><strong>esp32/smart_borewell_esp32.ino</strong> (Wi-Fi + HTTP POST Client)</span>
+            <button class="btn-header" id="btnCopyCodeViewer" style="padding: 4px 10px; font-size: 0.75rem;">Copy Code</button>
+          </div>
+          <div class="code-box-content" id="wokwiCodeViewerContent">Loading code...</div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 7: CONFIGURATION
+           ==================================================================== -->
+      <section class="tab-section" id="sec-config">
+        <div class="section-title-row">
+          <div>
+            <h2>Network & API Configuration</h2>
+            <p>Customize endpoint URLs, polling rates and ESP32 connection targets</p>
+          </div>
+        </div>
+
+        <div class="config-form-card">
+          <form id="configForm">
+            <div class="form-group">
+              <label for="cfgApiUrl">API_URL (REST API Endpoint)</label>
+              <input type="text" id="cfgApiUrl" class="form-control" placeholder="http://localhost:3000/api/water-level" value="http://localhost:3000/api/water-level">
+              <small>Endpoint where ESP32 sends POST requests and frontend polls data.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="cfgEsp32Ip">ESP32_IP_ADDRESS (Target Device IP)</label>
+              <input type="text" id="cfgEsp32Ip" class="form-control" placeholder="192.168.1.150" value="192.168.1.150">
+              <small>Local IP address of your physical ESP32 on your Wi-Fi router.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="cfgWifiServerUrl">WIFI_SERVER_URL (Gateway / Tunnel URL)</label>
+              <input type="text" id="cfgWifiServerUrl" class="form-control" placeholder="https://your-tunnel.loca.lt" value="http://localhost:3000">
+              <small>Public URL for Wokwi cloud simulation bridge or cloud forwarder.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="cfgPollingInterval">Polling Fallback Interval (ms)</label>
+              <input type="number" id="cfgPollingInterval" class="form-control" value="2000" min="500" max="10000" step="500">
+              <small>Interval in milliseconds to check for sensor data if SSE disconnects.</small>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+              <button type="submit" class="btn-header" style="background: var(--accent-cyan); color: #000; font-weight: 700; border: none; padding: 10px 20px;">
+                Save Configuration
+              </button>
+              <button type="button" class="btn-header" id="btnTestApiConnection">
+                Test API Connection
+              </button>
+              <button type="button" class="btn-header" id="btnResetConfig" style="color: #94a3b8;">
+                Reset Defaults
+              </button>
+            </div>
+            <div id="cfgFeedbackMsg" style="margin-top: 14px; font-size: 0.85rem; font-weight: 600;"></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 8: ABOUT PROJECT
+           ==================================================================== -->
+      <section class="tab-section" id="sec-about">
+        <div class="section-title-row">
+          <div>
+            <h2>About Project</h2>
+            <p>Smart Borewell Water Level Monitoring System Specification</p>
+          </div>
+        </div>
+
+        <div class="about-card">
+          <h3>Project Abstract</h3>
+          <p>
+            This Smart Borewell Water Level Monitoring System uses an ESP32 and ultrasonic sensor to measure the distance between the sensor and the water surface. The system calculates the water level and percentage and provides visual and audible alerts when the water level becomes low or critical.
+          </p>
+
+          <h4 style="color: #fff; margin-top: 20px; margin-bottom: 10px;">Hardware Pin Mapping Table</h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>ESP32 GPIO Pin</th>
+                <th>Interface Type</th>
+                <th>Function</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>HC-SR04 Trigger</strong></td>
+                <td>GPIO 5</td>
+                <td>Digital Output</td>
+                <td>Emits 10&mu;s ultrasonic pulse</td>
+              </tr>
+              <tr>
+                <td><strong>HC-SR04 Echo</strong></td>
+                <td>GPIO 18</td>
+                <td>Digital Input</td>
+                <td>Receives sound reflection duration</td>
+              </tr>
+              <tr>
+                <td><strong>SSD1306 OLED SDA</strong></td>
+                <td>GPIO 21</td>
+                <td>I2C Data</td>
+                <td>Local display telemetry</td>
+              </tr>
+              <tr>
+                <td><strong>SSD1306 OLED SCL</strong></td>
+                <td>GPIO 22</td>
+                <td>I2C Clock</td>
+                <td>Local display telemetry</td>
+              </tr>
+              <tr>
+                <td><strong>Green LED</strong></td>
+                <td>GPIO 19</td>
+                <td>Digital Output</td>
+                <td>Normal level indicator</td>
+              </tr>
+              <tr>
+                <td><strong>Red LED</strong></td>
+                <td>GPIO 4</td>
+                <td>Digital Output</td>
+                <td>Low / Critical level alert</td>
+              </tr>
+              <tr>
+                <td><strong>Piezo Buzzer</strong></td>
+                <td>GPIO 23</td>
+                <td>Digital Output</td>
+                <td>Audible alert for critical dry level</td>
+              </tr>
+              <tr>
+                <td><strong>5V Relay Module</strong></td>
+                <td>GPIO 26</td>
+                <td>Digital Output</td>
+                <td>Pump activation / Dry-run protection</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ========================================================================
+         FOOTER
+         ======================================================================== -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        Smart Borewell Water Level Monitoring System &bull; ESP32 IoT Project
+      </div>
+      <div class="footer-right">
+        <span>Depth: 200 cm</span>
+        <span>&bull;</span>
+        <span>REST API v1.0</span>
+        <span>&bull;</span>
+        <a href="https://wokwi.com/projects/477225704074108929" target="_blank" style="color: var(--accent-cyan); text-decoration: none;">Wokwi 477225704074108929</a>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ========================================================================
+       JAVASCRIPT MODULES
+       ======================================================================== -->
+  <script src="js/dashboard.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/demo.js"></script>
+</body>
+</html>

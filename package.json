@@ -1,0 +1,24 @@
+{
+  "name": "smart-borewell-water-level-system",
+  "version": "1.0.0",
+  "description": "Smart Borewell Water Level Monitoring System Dashboard & REST API for ESP32 and Wokwi",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "esp32",
+    "iot",
+    "borewell",
+    "water-level",
+    "wokwi",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

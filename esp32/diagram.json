@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "author": "Smart Borewell Water Level Monitoring System",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "ultrasonic",
+      "top": -100,
+      "left": 300,
+      "attrs": {
+        "distance": "100"
+      }
+    },
+    {
+      "type": "board-ssd1306",
+      "id": "oled",
+      "top": 120,
+      "left": 300,
+      "attrs": {
+        "i2cAddress": "0x3C"
+      }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "buzzer",
+      "top": 300,
+      "left": 50,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "greenLed",
+      "top": 300,
+      "left": 180,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "redLed",
+      "top": 400,
+      "left": 180,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "greenResistor",
+      "top": 300,
+      "left": 80,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "redResistor",
+      "top": 400,
+      "left": 80,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay",
+      "top": 300,
+      "left": 400,
+      "attrs": {
+        "transistor": "npn"
+      }
+    }
+  ],
+  "connections": [
+    [ "ultrasonic:VCC", "esp:VIN", "red", [] ],
+    [ "ultrasonic:GND", "esp:GND.1", "black", [] ],
+    [ "ultrasonic:TRIG", "esp:5", "green", [] ],
+    [ "ultrasonic:ECHO", "esp:18", "blue", [] ],
+    [ "oled:VCC", "esp:3V3", "red", [] ],
+    [ "oled:GND", "esp:GND.1", "black", [] ],
+    [ "oled:SDA", "esp:21", "green", [] ],
+    [ "oled:SCL", "esp:22", "blue", [] ],
+    [ "buzzer:1", "esp:23", "purple", [] ],
+    [ "buzzer:2", "esp:GND.1", "black", [] ],
+    [ "esp:19", "greenResistor:1", "green", [] ],
+    [ "greenResistor:2", "greenLed:A", "green", [] ],
+    [ "greenLed:C", "esp:GND.1", "black", [] ],
+    [ "esp:4", "redResistor:1", "red", [] ],
+    [ "redResistor:2", "redLed:A", "red", [] ],
+    [ "redLed:C", "esp:GND.1", "black", [] ],
+    [ "relay:VCC", "esp:VIN", "red", [] ],
+    [ "relay:GND", "esp:GND.1", "black", [] ],
+    [ "relay:IN", "esp:26", "orange", [] ]
+  ],
+  "dependencies": {}
+}
